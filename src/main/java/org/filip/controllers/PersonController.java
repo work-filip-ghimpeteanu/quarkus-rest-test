@@ -6,6 +6,7 @@ import org.filip.services.PersonService;
 import java.util.*;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
@@ -18,14 +19,39 @@ public class PersonController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{id}")
-    public Person get(@PathParam("id") Long id) {
+    public Person read(@PathParam("id") Long id) {
         return personService.getOne(id);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Person> list() {
+    public List<Person> readAll() {
         return personService.getAll();
+    }
+
+    @Transactional
+    @POST
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Person create(Person person) {
+        return personService.addOne(person);
+    }
+
+    @Transactional
+    @DELETE
+    @Produces("application/json")
+    @Path("{id}")
+    public Person delete(@PathParam("id") Long id) {
+        return personService.deleteOne(id);
+    }
+
+    @Transactional
+    @PUT
+    @Produces("application/json")
+    @Consumes("application/json")
+    @Path("{id}")
+    public Person update(@PathParam("id") Long id, Person person) {
+        return personService.updateOne(id, person);
     }
 
     @GET

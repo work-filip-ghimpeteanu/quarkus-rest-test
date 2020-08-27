@@ -36,6 +36,41 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    public Person addOne(Person person) {
+        personList.add(person);
+        return person;
+    }
+
+    @Override
+    public Person deleteOne(Long id) {
+        Person toDelete = personList.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElse(new Person());
+
+        personList.remove(toDelete);
+
+        return toDelete;
+    }
+
+    @Override
+    public Person updateOne(Long id, Person person) {
+        Person toUpdate = personList.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+
+        if (toUpdate == null) {
+            return new Person();
+        } else {
+            toUpdate.setName(person.getName());
+            toUpdate.setAge(person.getAge());
+            return toUpdate;
+        }
+    }
+
+
+    @Override
     public String sing(Long id) {
         Person person = personList.stream()
                 .filter(p -> p.getId().equals(id))
