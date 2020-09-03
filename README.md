@@ -28,3 +28,17 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 You can then execute your native executable with: `./target/quarkus-rest-test-1.0-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
+
+## Database
+The script from `src/main/scripts/quarkys_postgres.sh` takes care of creating a docker container with an postgres image.
+
+The commands to interact with the container are
+```bash
+./src/main/scripts/quarkus_postgres.sh start # to start the Postgres container
+./src/main/scripts/quarkus_postgres.sh stop # to stop the Postgres container
+```
+The configuration info is:
+```
+URL = jdbc:postgresql://localhost:25432/quarkus_db
+Username/Password = admin/admin
+```
