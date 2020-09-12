@@ -8,14 +8,15 @@ import javax.persistence.*;
 public class Person {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private Integer age;
-    private Timestamp creationTime;
+    private Timestamp createdOn;
+    private Timestamp lastUpdatedOn;
 
     public Person() {
-        creationTime = new Timestamp(System.currentTimeMillis());
+        createdOn = new Timestamp(System.currentTimeMillis());
     }
 
     public Long getId() {
@@ -42,11 +43,19 @@ public class Person {
         this.age = age;
     }
 
-    public Timestamp getCreationTime() {
-        return creationTime;
+    public Timestamp getCreatedOn() {
+        return createdOn;
     }
 
-    public void setCreationTime(Timestamp creationTime) {
-        this.creationTime = creationTime;
+    public void setCreatedOn(Timestamp createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public Timestamp getLastUpdatedOn() {
+        return lastUpdatedOn;
+    }
+
+    public void setLastUpdatedOn(Timestamp lastUpdatedOn) {
+        this.lastUpdatedOn = lastUpdatedOn;
     }
 }
