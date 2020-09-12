@@ -1,6 +1,7 @@
 package org.filip.services.impl;
 
 import io.quarkus.panache.common.Sort;
+import org.filip.RandomLoadApplier;
 import org.filip.entities.Person;
 import org.filip.exceptions.RestException;
 import org.filip.repository.PersonRepository;
@@ -19,6 +20,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Inject
     PersonRepository personRepository;
+    @Inject
+    RandomLoadApplier randomLoadApplier;
 
     @Override
     public PersonResource getOne(Long id) {
@@ -26,6 +29,7 @@ public class PersonServiceImpl implements PersonService {
                 .findByIdOptional(id)
                 .orElseThrow(personNotFound(id));
 
+        randomLoadApplier.applyALoad();
         return buildPersonResource(person);
     }
 
@@ -43,6 +47,7 @@ public class PersonServiceImpl implements PersonService {
     public PersonResource addOne(PersonResource personResource) {
         personRepository.persist(buildPerson(personResource));
 
+        randomLoadApplier.applyALoad();
         return personResource;
     }
 

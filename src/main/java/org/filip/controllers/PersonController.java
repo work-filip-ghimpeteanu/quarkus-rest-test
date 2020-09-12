@@ -1,5 +1,7 @@
 package org.filip.controllers;
 
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.*;
 import org.filip.resources.PersonResource;
 import org.filip.services.PersonService;
 
@@ -19,6 +21,15 @@ public class PersonController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{id}")
+    @Counted(
+            name = "readAccruedRequests",
+            description = "How many reads have been performed so far."
+    )
+    @Timed(
+            name = "readTimeElapseInMillis",
+            description = "How long it takes to do a read",
+            unit = MetricUnits.MILLISECONDS
+    )
     public PersonResource read(@PathParam("id") Long id) {
         return personService.getOne(id);
     }
@@ -33,6 +44,15 @@ public class PersonController {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
+    @Counted(
+            name = "createAccruedRequests",
+            description = "How many create have been performed so far."
+    )
+    @Timed(
+            name = "createTimeElapseInMillis",
+            description = "How long it takes to do a create",
+            unit = MetricUnits.MILLISECONDS
+    )
     public PersonResource create(PersonResource person) {
         return personService.addOne(person);
     }
