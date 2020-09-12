@@ -1,10 +1,22 @@
-package org.filip.resources;
+package org.filip.entities;
 
+import java.sql.Timestamp;
+
+import javax.persistence.*;
+
+@Entity
 public class Person {
 
+    @Id
+    @GeneratedValue
     private Long id;
     private String name;
     private Integer age;
+    private Timestamp creationTime;
+
+    public Person() {
+        creationTime = new Timestamp(System.currentTimeMillis());
+    }
 
     public Long getId() {
         return id;
@@ -30,12 +42,11 @@ public class Person {
         this.age = age;
     }
 
-    @Override
-    public String toString() {
-        return "Person{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", age=" + age +
-                '}';
+    public Timestamp getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Timestamp creationTime) {
+        this.creationTime = creationTime;
     }
 }

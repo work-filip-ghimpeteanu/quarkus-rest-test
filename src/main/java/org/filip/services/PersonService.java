@@ -1,14 +1,14 @@
 package org.filip.services;
 
-import org.filip.resources.Person;
+import org.filip.resources.PersonResource;
 
 import java.util.List;
 
 public interface PersonService {
-    Person getOne(Long id);
-    List<Person> getAll();
-    Person addOne(Person person);
-    Person deleteOne(Long id);
-    Person updateOne(Long id, Person person);
+    PersonResource getOne(Long id);
+    List<PersonResource> getAll();
+    PersonResource addOne(PersonResource person);
+    PersonResource deleteOne(Long id);
+    PersonResource updateOne(Long id, PersonResource person);
     String sing(Long id);
 }

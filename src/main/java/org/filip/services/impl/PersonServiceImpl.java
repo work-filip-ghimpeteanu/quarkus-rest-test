@@ -1,82 +1,100 @@
 package org.filip.services.impl;
 
-import org.filip.resources.Person;
+import io.quarkus.panache.common.Sort;
+import org.filip.entities.Person;
+import org.filip.exceptions.RestException;
+import org.filip.repository.PersonRepository;
+import org.filip.resources.PersonResource;
 import org.filip.services.PersonService;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 @ApplicationScoped
 public class PersonServiceImpl implements PersonService {
 
-    List<Person> personList = new LinkedList<>();
+    @Inject
+    PersonRepository personRepository;
 
-    public PersonServiceImpl() {
+    @Override
+    public PersonResource getOne(Long id) {
+        Person person = personRepository
+                .findByIdOptional(id)
+                .orElseThrow(personNotFound(id));
+
+        return buildPersonResource(person);
+    }
+
+    @Override
+    public List<PersonResource> getAll() {
+        List<Person> persons = personRepository.listAll(Sort.by("id"));
+        List<PersonResource> personResources = new LinkedList<>();
+        for (Person person : persons) {
+            personResources.add(buildPersonResource(person));
+        }
+        return personResources;
+    }
+
+    @Override
+    public PersonResource addOne(PersonResource personResource) {
+        personRepository.persist(buildPerson(personResource));
+
+        return personResource;
+    }
+
+    private Person buildPerson(PersonResource personResource) {
         Person person = new Person();
-
-        person.setName("Filip");
-        person.setAge(30);
-        person.setId(1L);
-
-        personList.add(person);
-    }
-
-    @Override
-    public Person getOne(Long id) {
-        return personList.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .orElse(new Person());
-    }
-
-    @Override
-    public List<Person> getAll() {
-        return personList;
-    }
-
-    @Override
-    public Person addOne(Person person) {
-        personList.add(person);
+        person.setName(personResource.getName());
+        person.setAge(personResource.getAge());
         return person;
     }
 
     @Override
-    public Person deleteOne(Long id) {
-        Person toDelete = personList.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .orElse(new Person());
+    public PersonResource deleteOne(Long id) {
+        Person person = personRepository
+                .findByIdOptional(id)
+                .orElseThrow(personNotFound(id));
 
-        personList.remove(toDelete);
+        personRepository.delete(person);
+        return buildPersonResource(person);
+    }
 
-        return toDelete;
+    private PersonResource buildPersonResource(Person person) {
+        PersonResource personResource = new PersonResource();
+        personResource.setId(person.getId());
+        personResource.setName(person.getName());
+        personResource.setAge(person.getAge());
+        return personResource;
     }
 
     @Override
-    public Person updateOne(Long id, Person person) {
-        Person toUpdate = personList.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+    public PersonResource updateOne(Long id, PersonResource personResource) {
+        Person toUpdate = personRepository
+                .findByIdOptional(id)
+                .orElseThrow(personNotFound(id));
 
-        if (toUpdate == null) {
-            return new Person();
-        } else {
-            toUpdate.setName(person.getName());
-            toUpdate.setAge(person.getAge());
-            return toUpdate;
-        }
+        toUpdate.setName(personResource.getName());
+        toUpdate.setAge(personResource.getAge());
+        personRepository.update(toUpdate);
+
+        personResource.setId(id);
+        return personResource;
     }
-
 
     @Override
     public String sing(Long id) {
-        Person person = personList.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .orElse(new Person());
+        Person person = personRepository
+                .findByIdOptional(id)
+                .orElseThrow(personNotFound(id));
 
         return person + " sings: Lalalala";
+    }
+
+    private Supplier<RestException> personNotFound(Long id) {
+        return () -> new RestException(Response.Status.NOT_FOUND, "Could not find Person with id " + id);
     }
 }

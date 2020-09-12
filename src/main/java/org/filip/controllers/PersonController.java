@@ -1,9 +1,9 @@
 package org.filip.controllers;
 
-import org.filip.resources.Person;
+import org.filip.resources.PersonResource;
 import org.filip.services.PersonService;
 
-import java.util.*;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -19,13 +19,13 @@ public class PersonController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{id}")
-    public Person read(@PathParam("id") Long id) {
+    public PersonResource read(@PathParam("id") Long id) {
         return personService.getOne(id);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Person> readAll() {
+    public List<PersonResource> readAll() {
         return personService.getAll();
     }
 
@@ -33,7 +33,7 @@ public class PersonController {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Person create(Person person) {
+    public PersonResource create(PersonResource person) {
         return personService.addOne(person);
     }
 
@@ -41,7 +41,7 @@ public class PersonController {
     @DELETE
     @Produces("application/json")
     @Path("{id}")
-    public Person delete(@PathParam("id") Long id) {
+    public PersonResource delete(@PathParam("id") Long id) {
         return personService.deleteOne(id);
     }
 
@@ -50,7 +50,7 @@ public class PersonController {
     @Produces("application/json")
     @Consumes("application/json")
     @Path("{id}")
-    public Person update(@PathParam("id") Long id, Person person) {
+    public PersonResource update(@PathParam("id") Long id, PersonResource person) {
         return personService.updateOne(id, person);
     }
 
