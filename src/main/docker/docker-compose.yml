@@ -1,0 +1,26 @@
+version: '2'
+services:
+  quarkus-db:
+    container_name: quarkus-db
+    image: "postgres"
+    networks:
+      - quarkus-network
+    ports:
+      - "25432:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=my-db
+  quarkus-rest:
+    container_name: quarkus-rest
+    image: "quarkus/quarkus-rest-test"
+    networks:
+      - quarkus-network
+    ports:
+      - "28080:8080"
+    depends_on:
+      - "quarkus-db"
+
+networks:
+  quarkus-network:
+    driver: bridge

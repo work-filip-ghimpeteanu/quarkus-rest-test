@@ -4,18 +4,38 @@
 BLUE="\e[34m"
 NC="\e[39m" # No Color
 
-COMMANDS=("start" "stop")
+COMMANDS=("build" "start" "stop" "cleanup")
 
 ########################################################################################################################
 ######                                                  SCRIPT'S STEPS
 ########################################################################################################################
 function doDockerCleanUp() {
-    docker ps -q -a -f ancestor=postgres | xargs -r docker rm -f
+    docker ps -q -a -f ancestor=quarkus-db | xargs -r docker rm -f
+    docker ps -q -a -f ancestor=quarkus-rest | xargs -r docker rm -f
+    docker rmi quarkus/quarkus-rest-test
+    docker rmi quay.io/quarkus/ubi-quarkus-native-image:20.1.0-java11
+    docker rmi registry.access.redhat.com/ubi8/ubi-minimal:8.1
 }
 
-function doDockerStart() {
-  docker run -d --hostname quarkus-postgres --name quarkus-postgres -p 25432:5432 -e POSTGRES_USER=admin \
-    -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=quarkus_db postgres
+function doBuild() {
+  if [[ "$1" == "native" ]]
+  then
+    echo -e "${BLUE}-- Building native quarkus${NC}"
+    mvn package -Pnative -Dquarkus.native.container-build=true && \
+    docker build -f src/main/docker/Dockerfile.native -t quarkus/quarkus-rest-test .
+  else
+    echo -e "${BLUE}-- Building JVM quarkus${NC}"
+    mvn package && \
+    docker build -f src/main/docker/Dockerfile.jvm -t quarkus/quarkus-rest-test-jvm .
+  fi
+}
+
+function doStart() {
+  env -C src/main/docker docker-compose up -d
+}
+
+function doStop() {
+  env -C src/main/docker docker-compose down
 }
 
 ########################################################################################################################
@@ -36,12 +56,24 @@ function printCommands() {
 if [[ ${1} == "start" ]]
 then
   echo -e "${BLUE}##################### STARTING ENVIRONMENT #####################${NC}"
+  doStop
+  doStart
+  echo -e "${BLUE}##################### DONE #####################${NC}"
+elif [[ ${1} == "build" ]]
+then
+  echo -e "${BLUE}##################### BUILDING ENVIRONMENT #####################${NC}"
+  doStop
   doDockerCleanUp
-  doDockerStart
+  doBuild ${2}
   echo -e "${BLUE}##################### DONE #####################${NC}"
 elif [[ ${1} == "stop" ]]
 then
   echo -e "${BLUE}##################### CLOSING ENVIRONMENT #####################${NC}"
+  doStop
+  echo -e "${BLUE}##################### DONE #####################${NC}"
+elif [[ ${1} == "cleanup" ]]
+then
+  echo -e "${BLUE}##################### CLEANING ENVIRONMENT #####################${NC}"
   doDockerCleanUp
   echo -e "${BLUE}##################### DONE #####################${NC}"
 else
