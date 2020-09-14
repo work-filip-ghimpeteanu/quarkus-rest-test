@@ -10,10 +10,7 @@ COMMANDS=("build" "start" "stop" "cleanup")
 ######                                                  SCRIPT'S STEPS
 ########################################################################################################################
 function doDockerCleanUp() {
-    docker ps -q -a -f ancestor=quarkus-db | xargs -r docker rm -f
-    docker ps -q -a -f ancestor=quarkus-rest | xargs -r docker rm -f
-    docker rmi quarkus/quarkus-rest-test
-    docker rmi quay.io/quarkus/ubi-quarkus-native-image:20.1.0-java11
+    docker rmi $(docker image ls | grep quarkus | awk '{print $3}')
     docker rmi registry.access.redhat.com/ubi8/ubi-minimal:8.1
 }
 
@@ -22,11 +19,11 @@ function doBuild() {
   then
     echo -e "${BLUE}-- Building native quarkus${NC}"
     mvn package -Pnative -Dquarkus.native.container-build=true && \
-    docker build -f src/main/docker/Dockerfile.native -t quarkus/quarkus-rest-test .
+    docker build -f src/main/docker/Dockerfile.native -t quarkus/quarkus-rest-test:native .
   else
     echo -e "${BLUE}-- Building JVM quarkus${NC}"
     mvn package && \
-    docker build -f src/main/docker/Dockerfile.jvm -t quarkus/quarkus-rest-test-jvm .
+    docker build -f src/main/docker/Dockerfile.jvm -t quarkus/quarkus-rest-test:jvm .
   fi
 }
 
@@ -63,7 +60,6 @@ elif [[ ${1} == "build" ]]
 then
   echo -e "${BLUE}##################### BUILDING ENVIRONMENT #####################${NC}"
   doStop
-  doDockerCleanUp
   doBuild ${2}
   echo -e "${BLUE}##################### DONE #####################${NC}"
 elif [[ ${1} == "stop" ]]

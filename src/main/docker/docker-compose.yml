@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 services:
   quarkus-db:
     container_name: quarkus-db
@@ -13,7 +13,7 @@ services:
       - POSTGRES_DB=my-db
   quarkus-rest:
     container_name: quarkus-rest
-    image: "quarkus/quarkus-rest-test"
+    image: "quarkus/quarkus-rest-test:native"
     networks:
       - quarkus-network
     ports:
